@@ -102,7 +102,11 @@ public class WindowsStorageDeviceDetector extends AbstractStorageDeviceDetector 
 	    		if (!fileSystemLabel.isEmpty() && fileSystemLabel.size()==1)
 	    		{
 	    			final String label = fileSystemLabel.iterator().next();
-	    			if (!label.isEmpty())	// if there is no volume label, fall-back on [FileSystemView.getSystemDisplayName(File)] approach
+	    			// note: if there is no volume label, we fall-back on 
+	    			// [FileSystemView.getSystemDisplayName(File)] approach => this can 
+	    			// be useful as it will derive the user-friendly pseudo label 
+	    			// 'USB Drive' (with localisation) prefix as is shown in eg. Windows Explorer
+	    			if (!label.isEmpty())
 	    			{
 	    				return label;
 	    			}
