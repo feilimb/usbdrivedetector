@@ -18,9 +18,15 @@ package net.samuelcampos.usbdrivedetector.detectors;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.filechooser.FileSystemView;
+
+import com.github.tuupertunut.powershelllibjava.PowerShell;
+import com.github.tuupertunut.powershelllibjava.PowerShellExecutionException;
 
 import lombok.extern.slf4j.Slf4j;
 import net.samuelcampos.usbdrivedetector.USBStorageDevice;
@@ -40,6 +46,8 @@ public class WindowsStorageDeviceDetector extends AbstractStorageDeviceDetector 
      */
     private static final String CMD_WMI_ARGS = "logicaldisk where drivetype=2 get DeviceID,VolumeSerialNumber";
     private static final String CMD_WMI_USB = WMIC_PATH + " " + CMD_WMI_ARGS;
+    private static final String GET_VOLUME_FILESYSTEMLABEL_PROPERTY_NAME = "FileSystemLabel : ";
+    private static final String GET_VOLUME_FILESYSTEMLABEL_CMD_TEMPLATE = "Get-Volume -DriveLetter %s | Format-List -Property FileSystemLabel";
 
     protected WindowsStorageDeviceDetector() {
         super();
@@ -70,8 +78,45 @@ public class WindowsStorageDeviceDetector extends AbstractStorageDeviceDetector 
         return listDevices;
     }
 
+    private Collection<String> getValuesByProperty(final String psOutput, final String propertyTag)
+    {
+    	return Arrays.asList(psOutput.split("\\r\\n")).stream()
+        		.filter(l -> l.startsWith(propertyTag))
+        		.map(l -> l.substring(propertyTag.length()))
+        		.collect(Collectors.toList());
+    }
+    
     private String getDeviceName(final String rootPath) {
         final File f = new File(rootPath);
+        
+    	if (rootPath.contains(":"))
+    	{
+    		// first approach: let's use powershell to derive the volume label
+	        try {
+	        	PowerShell psSession = PowerShell.open();
+	        	final String driveLetter = rootPath.substring(0, rootPath.indexOf(":"));
+	        	
+	    		String cmd = String.format(GET_VOLUME_FILESYSTEMLABEL_CMD_TEMPLATE, driveLetter);
+	    		String fileSystemLabelOutput = psSession.executeCommands(cmd);
+	    		Collection<String> fileSystemLabel = getValuesByProperty(fileSystemLabelOutput, GET_VOLUME_FILESYSTEMLABEL_PROPERTY_NAME);
+	    		if (!fileSystemLabel.isEmpty() && fileSystemLabel.size()==1)
+	    		{
+	    			final String label = fileSystemLabel.iterator().next();
+	    			if (!label.isEmpty())	// if there is no volume label, fall-back on [FileSystemView.getSystemDisplayName(File)] approach
+	    			{
+	    				return label;
+	    			}
+	    		}
+			} catch (IOException|PowerShellExecutionException e) {
+				// Such an exception may be encountered if eg. a USB device is 
+				// ejected while the powershell cmd is being executed. In such 
+				// a case, let's just fall-back on pre-existing 
+				// [FileSystemView.getSystemDisplayName(File)] approach.
+	        }
+    	}
+
+        // fall-back approach: let's use [FileSystemView.getSystemDisplayName(File)] to determine
+    	// volume label (including pseudo label when no actual label exists)
         final FileSystemView v = FileSystemView.getFileSystemView();
         String name = v.getSystemDisplayName(f);
 
