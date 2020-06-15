@@ -15,9 +15,10 @@
  */
 package net.samuelcampos.usbdrivedetector.process;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -25,7 +26,6 @@ import java.util.function.Predicate;
  *
  * @author samuelcampos
  */
-@Slf4j
 public class CommandExecutor implements Closeable {
 
     private final String command;
@@ -33,10 +33,6 @@ public class CommandExecutor implements Closeable {
     private final Process process;
 
     public CommandExecutor(final String command) throws IOException {
-        if (log.isTraceEnabled()) {
-            log.trace("Running command: {}", command);
-        }
-
         this.command = command;
         this.process = Runtime.getRuntime().exec(command);
         this.input = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -80,17 +76,14 @@ public class CommandExecutor implements Closeable {
             int exitValue = process.waitFor();
 
             if (exitValue != 0) {
-                log.warn("Abnormal command '{}' terminantion. Exit value: {}", command, exitValue);
             }
         } catch (InterruptedException e) {
-            log.error("Error while waiting for command '{}' to complete", command, e);
         }
 
         if (input != null) {
             try {
                 input.close();
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
             }
         }
 

@@ -15,22 +15,20 @@
  */
 package net.samuelcampos.usbdrivedetector.detectors;
 
-import lombok.extern.slf4j.Slf4j;
-import net.samuelcampos.usbdrivedetector.USBStorageDevice;
-import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
-import net.samuelcampos.usbdrivedetector.utils.OSUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.samuelcampos.usbdrivedetector.USBStorageDevice;
+import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
+import net.samuelcampos.usbdrivedetector.utils.OSUtils;
+
 /**
  *
  * @author samuelcampos
  */
-@Slf4j
 public class OSXStorageDeviceDetector extends AbstractStorageDeviceDetector {
 
     /**
@@ -65,7 +63,6 @@ public class OSXStorageDeviceDetector extends AbstractStorageDeviceDetector {
         		macosVersion = Integer.parseInt(versionParts[1]);
         	}
         	catch (NumberFormatException nfe) {
-        		log.error(nfe.getMessage(), nfe);
         	}
         }
 
@@ -95,7 +92,6 @@ public class OSXStorageDeviceDetector extends AbstractStorageDeviceDetector {
         		});
 
         	} catch (IOException e) {
-        		log.error(e.getMessage(), e);
         	}
         }
         else{
@@ -110,7 +106,6 @@ public class OSXStorageDeviceDetector extends AbstractStorageDeviceDetector {
         		});
 
         	} catch (IOException e) {
-        		log.error(e.getMessage(), e);
         	}
         }
 
@@ -153,7 +148,6 @@ public class OSXStorageDeviceDetector extends AbstractStorageDeviceDetector {
     		});
 
     	} catch (IOException e) {
-    		log.error(e.getMessage(), e);
     	}
 
 		return disk;

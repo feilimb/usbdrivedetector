@@ -15,20 +15,22 @@
  */
 package net.samuelcampos.usbdrivedetector;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import net.samuelcampos.usbdrivedetector.detectors.AbstractStorageDeviceDetector;
 import net.samuelcampos.usbdrivedetector.events.DeviceEventType;
 import net.samuelcampos.usbdrivedetector.events.IUSBDriveListener;
 import net.samuelcampos.usbdrivedetector.events.USBStorageEvent;
 import net.samuelcampos.usbdrivedetector.unmounters.AbstractStorageDeviceUnmounter;
 
-import java.io.IOException;
-import java.util.*;
-
 /**
  * @author samuelcampos
  */
-@Slf4j
 public class USBDeviceDetectorManager {
 
     /**
@@ -111,7 +113,6 @@ public class USBDeviceDetectorManager {
                 listenerTask = null;
             }
         } catch (InterruptedException e) {
-            log.error("Unable to with for 'listenerTask' to die.", e);
         }
     }
 
@@ -220,7 +221,6 @@ public class USBDeviceDetectorManager {
             try {
                 listener.usbDriveEvent(event);
             } catch (Exception ex) {
-                log.error("An IUSBDriveListener threw an exception", ex);
             }
         }
     }
@@ -240,24 +240,19 @@ public class USBDeviceDetectorManager {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
-                        log.trace("Polling refresh task is running");
-
                         List<USBStorageDevice> actualConnectedDevices = getRemovableDevices();
 
                         updateConnectedDevices(actualConnectedDevices);
 
                     } catch (Exception e) {
-                        log.error("Error while refreshing device list", e);
                     }
 
                     sleep(pollingInterval);
                 }
             } catch (InterruptedException ex) {
             	if (!ex.getMessage().equalsIgnoreCase("sleep interrupted")) {
-                    log.error("Stopping polling thread", ex);
             	}
             }
         }
-
     }
 }

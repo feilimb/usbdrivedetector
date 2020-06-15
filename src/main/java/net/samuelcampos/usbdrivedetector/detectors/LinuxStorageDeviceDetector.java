@@ -15,22 +15,20 @@
  */
 package net.samuelcampos.usbdrivedetector.detectors;
 
-import lombok.extern.slf4j.Slf4j;
-import net.samuelcampos.usbdrivedetector.USBStorageDevice;
-import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.samuelcampos.usbdrivedetector.USBStorageDevice;
+import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
+
 /**
  * Tested on Linux Ubuntu 13.10
  *
  * @author samuelcampos
  */
-@Slf4j
 public class LinuxStorageDeviceDetector extends AbstractStorageDeviceDetector {
 
     private static final String CMD_DF = "df -l";
@@ -76,9 +74,7 @@ public class LinuxStorageDeviceDetector extends AbstractStorageDeviceDetector {
             });
 
         } catch (final IOException e) {
-            log.error(e.getMessage(), e);
         }
-
     }
 
 
@@ -112,7 +108,6 @@ public class LinuxStorageDeviceDetector extends AbstractStorageDeviceDetector {
             });
 
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
         }
 
         return listDevices;

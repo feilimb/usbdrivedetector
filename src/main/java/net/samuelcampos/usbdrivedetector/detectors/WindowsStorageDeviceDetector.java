@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
 
-import lombok.extern.slf4j.Slf4j;
 import net.samuelcampos.usbdrivedetector.USBStorageDevice;
 import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
 
@@ -30,7 +29,6 @@ import net.samuelcampos.usbdrivedetector.process.CommandExecutor;
  *
  * @author samuelcampos
  */
-@Slf4j
 public class WindowsStorageDeviceDetector extends AbstractStorageDeviceDetector {
 
     private static final String WMIC_PATH = System.getenv("WINDIR") + "\\System32\\wbem\\wmic.exe";
@@ -72,7 +70,6 @@ public class WindowsStorageDeviceDetector extends AbstractStorageDeviceDetector 
             });
 
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
         }
 
         return listDevices;
